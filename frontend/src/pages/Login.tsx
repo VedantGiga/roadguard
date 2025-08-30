@@ -32,12 +32,20 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      const userData = await login(email, password);
       toast({
         title: "Login successful",
         description: "Welcome back to RoadGuard!",
       });
-      navigate('/dashboard');
+      
+      // Redirect based on user type
+      if (userData?.userType === 'admin') {
+        navigate('/admin-dashboard');
+      } else if (userData?.userType === 'mechanic') {
+        navigate('/worker-dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error: any) {
       toast({
         title: "Login failed",

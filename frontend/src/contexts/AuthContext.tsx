@@ -7,14 +7,14 @@ interface User {
   lastName: string;
   email: string;
   phone: string;
-  userType: 'driver' | 'mechanic';
+  userType: 'driver' | 'mechanic' | 'admin';
 }
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (userData: any) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  register: (userData: any) => Promise<User>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -58,6 +58,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(userData);
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(userData));
+      
+      return userData;
     } catch (error: any) {
       throw new Error(error.response?.data?.error || 'Login failed');
     }
@@ -72,6 +74,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(newUser);
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(newUser));
+      
+      return newUser;
     } catch (error: any) {
       throw new Error(error.response?.data?.error || 'Registration failed');
     }

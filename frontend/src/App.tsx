@@ -41,14 +41,23 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
     return <LoadingSpinner />;
   }
   
-  return user ? <Navigate to="/dashboard" /> : <>{children}</>;
+  if (user) {
+    if (user.userType === 'admin') return <Navigate to="/admin-dashboard" />;
+    if (user.userType === 'mechanic') return <Navigate to="/worker-dashboard" />;
+    return <Navigate to="/dashboard" />;
+  }
+  
+  return <>{children}</>;
 };
 
 const DashboardRoute = () => {
   const { user } = useAuth();
   
+  if (user?.userType === 'admin') {
+    return <Navigate to="/admin-dashboard" />;
+  }
   if (user?.userType === 'mechanic') {
-    return <WorkerDashboard />;
+    return <Navigate to="/worker-dashboard" />;
   }
   
   return <AdminDashboard />;
@@ -68,8 +77,8 @@ const App = () => (
                 <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
                 <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
                 <Route path="/dashboard" element={<ProtectedRoute><DashboardRoute /></ProtectedRoute>} />
-                <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-                <Route path="/worker" element={<ProtectedRoute><WorkerDashboard /></ProtectedRoute>} />
+                <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                <Route path="/worker-dashboard" element={<ProtectedRoute><WorkerDashboard /></ProtectedRoute>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

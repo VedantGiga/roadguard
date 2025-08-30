@@ -31,7 +31,7 @@ const SignupPage = () => {
     phone: "",
     password: "",
     confirmPassword: "",
-    userType: "driver", // driver or mechanic
+    userType: "driver", // driver, mechanic, or admin
     agreeToTerms: false,
     subscribeNewsletter: false
   });
@@ -68,12 +68,20 @@ const SignupPage = () => {
 
     try {
       const { confirmPassword, ...userData } = formData;
-      await register(userData);
+      const user = await register(userData);
       toast({
         title: "Registration successful",
         description: "Welcome to RoadGuard!",
       });
-      navigate('/dashboard');
+      
+      // Redirect based on user type
+      if (userData.userType === 'admin') {
+        navigate('/admin-dashboard');
+      } else if (userData.userType === 'mechanic') {
+        navigate('/worker-dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error: any) {
       toast({
         title: "Registration failed",
@@ -114,15 +122,15 @@ const SignupPage = () => {
 
             <CardContent className="space-y-6">
               {/* User Type Selection */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <Button
                   type="button"
                   variant={formData.userType === "driver" ? "emergency" : "outline"}
                   className="h-16 flex-col space-y-2 transition-bounce"
                   onClick={() => handleInputChange("userType", "driver")}
                 >
-                  <User className="w-6 h-6" />
-                  <span>I need help</span>
+                  <User className="w-5 h-5" />
+                  <span className="text-xs">User</span>
                 </Button>
                 <Button
                   type="button"
@@ -130,8 +138,17 @@ const SignupPage = () => {
                   className="h-16 flex-col space-y-2 transition-bounce"
                   onClick={() => handleInputChange("userType", "mechanic")}
                 >
-                  <Shield className="w-6 h-6" />
-                  <span>I provide help</span>
+                  <Shield className="w-5 h-5" />
+                  <span className="text-xs">Worker</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant={formData.userType === "admin" ? "default" : "outline"}
+                  className="h-16 flex-col space-y-2 transition-bounce"
+                  onClick={() => handleInputChange("userType", "admin")}
+                >
+                  <Star className="w-5 h-5" />
+                  <span className="text-xs">Admin</span>
                 </Button>
               </div>
 
@@ -278,7 +295,7 @@ const SignupPage = () => {
 
                 <Button 
                   type="submit" 
-                  variant={formData.userType === "driver" ? "emergency" : "trust"}
+                  variant={formData.userType === "driver" ? "emergency" : formData.userType === "admin" ? "default" : "trust"}
                   size="lg" 
                   className="w-full transition-bounce hover:scale-105"
                   disabled={!formData.agreeToTerms || isLoading}
